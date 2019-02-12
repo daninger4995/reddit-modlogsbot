@@ -4,7 +4,7 @@ import praw
 
 import auth
 
-__version__ = '0.0.4'
+__version__ = '0.1.0'
 
 def main():
     print('Initializing reddit...')
@@ -51,7 +51,7 @@ def main():
         message += '{rank} | [{user}](https://reddit.com/u/{user}) | {neg} | {pos}\n'.format(
             rank=i+1, user=user, neg=counter['neg'], pos=counter['pos'])
     print('Sending message (clipped to max. 10,000 characters)...')
-    subreddit.message('Mod logs', message[:10000])
+    subreddit.message('Mod log summary', message[:10000])
     print(message)
 
 if __name__ == "__main__":
