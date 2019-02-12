@@ -44,11 +44,15 @@ def main():
     print('\nSorting data...')
     users = dict(sorted(users.items(), key=lambda u: u[1]['neg'], reverse=True))
     print('Building mod mail message...')
-    message = f'Mod log summary for the last {days} days:\n'
+    message = f'#### Mod log summary for the last {days} days\n\n'
+    message += 'Rank | Username | remove/spam | approve\n'
+    message += '-: | - | -: | -:\n'
     for i, (user, counter) in enumerate(users.items()):
-        message += '\n{}. {} | {} remove/spam | {} approve'.format(i+1, user, counter['neg'], counter['pos'])
-    print('Seding message...')
-    subreddit.message('Mod logs', message)
+        message += '{rank} | [{user}](https://reddit.com/u/{user}) | {neg} | {pos}\n'.format(
+            rank=i+1, user=user, neg=counter['neg'], pos=counter['pos'])
+    print('Sending message (clipped to max. 10,000 characters)...')
+    subreddit.message('Mod logs', message[:10000])
+    print(message)
 
 if __name__ == "__main__":
     main()
