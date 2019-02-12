@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
+from os import path
 
 import praw
 
 import auth
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 def main():
-    print('Initializing reddit...')
+    print('Initializing reddit')
     reddit = praw.Reddit(**auth.reddit)
     subreddit = reddit.subreddit('PurplePillTest')
     pos_actions = ['approvelink', 'approvecomment']
@@ -16,7 +17,7 @@ def main():
     days = 30
     users = {}
     for i, log in enumerate(subreddit.mod.log(limit=None)):
-        print(f'\rAnalysing logs... {i}', end='')
+        print(f'\rAnalysing logs ({i})', end='')
         # Break out of loop if log entries are too old
         dt = datetime.fromtimestamp(log.created_utc)
         delta = datetime.utcnow() - dt
@@ -41,18 +42,21 @@ def main():
             user['neg'] += 1
         user['total'] += 1
     # Sort by total action count
-    print('\nSorting data...')
+    print('\nSorting data')
     users = dict(sorted(users.items(), key=lambda u: u[1]['neg'], reverse=True))
-    print('Building mod mail message...')
+    print('Building mod mail message')
     message = f'#### Mod log summary for the last {days} days\n\n'
     message += 'Rank | Username | remove/spam | approve\n'
     message += '-: | - | -: | -:\n'
     for i, (user, counter) in enumerate(users.items()):
         message += '{rank} | [{user}](https://reddit.com/u/{user}) | {neg} | {pos}\n'.format(
             rank=i+1, user=user, neg=counter['neg'], pos=counter['pos'])
-    print('Sending message (clipped to max. 10,000 characters)...')
+    print('Sending message (clipped to max. 10,000 characters)')
     subreddit.message('Mod log summary', message[:10000])
-    print(message)
+    filepath = path.join(path.dirname(__file__), 'modlogs.md')
+    print(f'Writing the whole message to {filepath}')
+    with open(filepath, 'w') as f:
+        f.write(message)
 
 if __name__ == "__main__":
     main()
