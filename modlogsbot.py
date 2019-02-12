@@ -20,7 +20,6 @@ def main():
         # Break out of loop if log entries are too old
         dt = datetime.fromtimestamp(log.created_utc)
         delta = datetime.utcnow() - dt
-        print('\n' + str(delta))
         if delta > timedelta(days=days):
             break
         # Filter actions
