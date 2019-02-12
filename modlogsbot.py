@@ -19,7 +19,8 @@ def main():
         print(f'\rAnalysing logs... {i}', end='')
         # Break out of loop if log entries are too old
         dt = datetime.fromtimestamp(log.created_utc)
-        delta = dt - datetime.utcnow()
+        delta = datetime.utcnow() - dt
+        print('\n' + str(delta))
         if delta > timedelta(days=days):
             break
         # Filter actions
