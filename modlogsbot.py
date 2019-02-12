@@ -54,7 +54,7 @@ def main():
         message += '{rank} | [{user}](https://reddit.com/u/{user}) | {neg} | {pos}\n'.format(
             rank=i+1, user=user, neg=counter['neg'], pos=counter['pos'])
     # Send modmail
-    print('Sending message (clipped to max. 10,000 characters)')
+    print('Sending message (clipped to max. 9,000 characters)')
     # Limit modmail to 9k characters, the actual upper limit should be 10k but better be safe
     subreddit.message('Mod log summary', message[:9000])
     # Write the whole message to file
