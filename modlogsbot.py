@@ -5,9 +5,10 @@ import praw
 
 import auth
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 def main():
+    # Init reddit
     print('Initializing reddit')
     reddit = praw.Reddit(**auth.reddit)
     subreddit = reddit.subreddit('PurplePillTest')
@@ -44,6 +45,7 @@ def main():
     # Sort by total action count
     print('\nSorting data')
     users = dict(sorted(users.items(), key=lambda u: u[1]['neg'], reverse=True))
+    # Build message
     print('Building mod mail message')
     message = f'#### Mod log summary for the last {days} days\n\n'
     message += 'Rank | Username | remove/spam | approve\n'
@@ -51,8 +53,11 @@ def main():
     for i, (user, counter) in enumerate(users.items()):
         message += '{rank} | [{user}](https://reddit.com/u/{user}) | {neg} | {pos}\n'.format(
             rank=i+1, user=user, neg=counter['neg'], pos=counter['pos'])
+    # Send modmail
     print('Sending message (clipped to max. 10,000 characters)')
-    subreddit.message('Mod log summary', message[:10000])
+    # Limit modmail to 9k characters, the actual upper limit should be 10k but better be safe
+    subreddit.message('Mod log summary', message[:9000])
+    # Write the whole message to file
     filepath = path.join(path.dirname(__file__), 'modlogs.md')
     print(f'Writing the whole message to {filepath}')
     with open(filepath, 'w') as f:
