@@ -4,9 +4,10 @@ import praw
 
 import auth
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 def main():
+    print('Initializing reddit...')
     reddit = praw.Reddit(**auth.reddit)
     subreddit = reddit.subreddit('PurplePillTest')
     pos_actions = ['approvelink', 'approvecomment']
@@ -14,7 +15,8 @@ def main():
     all_actions = pos_actions + neg_actions
     days = 30
     users = {}
-    for log in subreddit.mod.log():
+    for i, log in enumerate(subreddit.mod.log(limit=None)):
+        print(f'\rAnalysing logs... {i}', end='')
         # Break out of loop if log entries are too old
         dt = datetime.fromtimestamp(log.created_utc)
         delta = dt - datetime.utcnow()
@@ -39,10 +41,13 @@ def main():
             user['neg'] += 1
         user['total'] += 1
     # Sort by total action count
+    print('\nSorting data...')
     users = dict(sorted(users.items(), key=lambda u: u[1]['neg'], reverse=True))
+    print('Building mod mail message...')
     message = f'Mod log summary for the last {days} days:\n'
     for i, (user, counter) in enumerate(users.items()):
         message += '\n{}. {} | {} remove/spam | {} approve'.format(i+1, user, counter['neg'], counter['pos'])
+    print('Seding message...')
     subreddit.message('Mod logs', message)
 
 if __name__ == "__main__":
